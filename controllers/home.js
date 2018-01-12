@@ -22,7 +22,7 @@ github.authenticate({
 
 
 /** GET / */
-exports.index = function(req, res) {
+exports.index = function(req, resp, next) {
   // Find NetID
   var netid = req.get('eppn');
   var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
@@ -43,14 +43,14 @@ exports.index = function(req, res) {
     if (err) {
       if (err.message == "Not Found") {
         // Response: User does not exist on gitlab -- have them log in
-        res.render('loginToGHE', {});
+        resp.render('loginToGHE', {});
       } else {
         // Response: Unknown error and log it
-        throw {
+        next({
           text: 'We recieved an unknown response from github.  Please try again later.',
           call: 'github.users.getForUser',
           err: err
-        };
+        });
       }
       return;
     }
@@ -68,14 +68,14 @@ exports.index = function(req, res) {
       if (err) {
         if (err.code == 422) {
           // Response: Repo already exists
-          res.render('repoExists', {url: studentRepoURL});
+          resp.render('repoExists', {url: studentRepoURL});
         } else {
           // Response: Unknown error and log it
-          throw {
+          next({
             text: 'We recieved an unknown response from github.  Please try again later.',
             call: 'github.repos.createForOrg',
             err: err
-          };
+          });
         }
         return;
       }
@@ -90,14 +90,14 @@ exports.index = function(req, res) {
         console.log();
         if (err) {
           // Response: Unknown error and log it
-          throw {
+          next({
             text: 'We recieved an unknown response from github.  Please try again later.',
             call: 'github.repos.addCollaborator',
             err: err
-          };
+          });
         } else {
           // Response: Success
-          res.render('repoCreated', {url: studentRepoURL});
+          resp.render('repoCreated', {url: studentRepoURL});
         }
       });          
     });          
