@@ -25,16 +25,16 @@ github.authenticate({
 exports.index = function(req, resp, next) {
   // Find NetID
   var netid = req.get('eppn');
-  var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
-
   if (!netid || netid.length < 1) {
     throw {
       text: 'We were unable to authenticate your NetID.  Please try again later.',
       call: "shib"
     };
   }
+
   netid = netid.split("@")[0];
   console.log("NetID: " + netid);
+  var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
 
   // 1. Ensure/check if the user exists in gitlab
   github.users.getForUser({
