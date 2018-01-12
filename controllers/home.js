@@ -33,6 +33,7 @@ exports.index = function(req, res) {
       call: "shib"
     };
   }
+  netid = netid.split("@")[0];
   console.log("NetID: " + netid);
 
   // 1. Ensure/check if the user exists in gitlab
