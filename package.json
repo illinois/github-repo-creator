@@ -1,7 +1,7 @@
 {
   "name": "ghe-makeRepo",
   "version": "1.0.0",
-  "description": "Self-service creation of a repo for a student on GHE",
+  "description": "Web tool for student self-service creation of a repo on GHE",
   "scripts": {
     "start": "node server.js"
   },

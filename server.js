@@ -15,7 +15,6 @@ dotenv.load();
 
 // Controllers
 var HomeController = require('./controllers/home');
-var contactController = require('./controllers/contact');
 
 var app = express();
 
@@ -49,8 +48,6 @@ app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', HomeController.index);
-app.get('/contact', contactController.contactGet);
-app.post('/contact', contactController.contactPost);
 
 // Production error handler
 /*

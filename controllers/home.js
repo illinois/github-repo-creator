@@ -1,5 +1,3 @@
-
-
 /** Course setup */
 var host = "github-dev.cs.illinois.edu";
 var org = "cs225sp18";
@@ -22,10 +20,6 @@ github.authenticate({
   token: process.env.GHE_TOKEN
 });
 
-
-var unexpectedError = function(error, err) {
-
-}
 
 /** GET / */
 exports.index = function(req, res) {
