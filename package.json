@@ -1,0 +1,26 @@
+{
+  "name": "ghe-makeRepo",
+  "version": "1.0.0",
+  "description": "Self-service creation of a repo for a student on GHE",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "compression": "^1.6.2",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "express-flash": "0.0.2",
+    "express-handlebars": "^3.0.0",
+    "express-session": "^1.2.1",
+    "express-validator": "^2.20.4",
+    "github": "^13.1.0",
+    "method-override": "^2.3.5",
+    "morgan": "^1.7.0",
+    "nodemailer": "^2.3.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": "6.1.0"
+  }
+}
