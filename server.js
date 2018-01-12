@@ -34,6 +34,7 @@ var hbs = exphbs.create({
   }
 });
 
+app.set('trust proxy', '127.0.0.1');
 app.engine('handlebars', hbs.engine);
 app.set('view engine', 'handlebars');
 app.set('port', process.env.PORT || 3000);
@@ -59,7 +60,7 @@ if (app.get('env') === 'production') {
 }
 */
 app.use(function(err, req, res, next) {
-  console.log(err);
+  console.log(JSON.stringify(err));
   res.render('error', err);
   //console.error(err.stack);
   //res.sendStatus(err.status || 500);
