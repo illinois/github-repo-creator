@@ -1,9 +1,7 @@
 /** Course setup */
 var host = "github-dev.cs.illinois.edu";
-var org = "cs225sp18";
-var course = "CS 225";
-var courseTerm = "Spring 2018";
-
+var org = process.env.GH_ORG;
+var courseTerm = process.env.COURSE_TERM;
 
 /** GHE API setup */
 var GitHubApi = require('github')
