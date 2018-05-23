@@ -1,9 +1,7 @@
 /** Course setup */
 var host = "github-dev.cs.illinois.edu";
-var org = "cs225sp18";
-var course = "CS 225";
-var courseTerm = "Spring 2018";
-
+var org = process.env.GH_ORG;
+var courseTerm = process.env.COURSE_TERM;
 
 /** GHE API setup */
 var GitHubApi = require('github')
@@ -36,13 +34,13 @@ exports.index = function(req, resp, next) {
   console.log("NetID: " + netid);
   var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
 
-  // 1. Ensure/check if the user exists in gitlab
+  // 1. Ensure/check if the user exists in GitHub
   github.users.getForUser({
     username: netid
   }, function (err, res) {
     if (err) {
       if (err.message == "Not Found") {
-        // Response: User does not exist on gitlab -- have them log in
+        // Response: User does not exist on GitHub -- have them log in
         resp.render('loginToGHE', {});
       } else {
         // Response: Unknown error and log it
