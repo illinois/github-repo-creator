@@ -2,7 +2,6 @@ var express = require('express');
 var path = require('path');
 var logger = require('morgan');
 var compression = require('compression');
-var session = require('express-session');
 var bodyParser = require('body-parser');
 var expressValidator = require('express-validator');
 var dotenv = require('dotenv');
@@ -41,7 +40,6 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
-app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', HomeController.index);
@@ -56,10 +54,8 @@ if (app.get('env') === 'production') {
 }
 */
 app.use(function(err, req, res, next) {
-  console.log(JSON.stringify(err));
+  console.error(err);
   res.render('error', err);
-  //console.error(err.stack);
-  //res.sendStatus(err.status || 500);
 });
 
 
