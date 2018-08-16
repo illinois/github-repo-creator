@@ -10,11 +10,7 @@ var exphbs = require('express-handlebars');
 // Load environment variables from .env file
 dotenv.load();
 
-// Controllers
-var HomeController = require('./controllers/home');
-
 var app = express();
-
 
 var hbs = exphbs.create({
   defaultLayout: 'main',
@@ -42,7 +38,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(expressValidator());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', HomeController.index);
+app.use('/', require('./controllers/home'));
 
 // Production error handler
 /*

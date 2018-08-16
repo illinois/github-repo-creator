@@ -1,28 +1,22 @@
-/** Course setup */
-var host = "github-dev.cs.illinois.edu";
-var org = process.env.GH_ORG;
-var courseTerm = process.env.COURSE_TERM;
+const router = require('express').Router();
+const Octokit = require('@octokit/rest');
 
-/** GHE API setup */
-var GitHubApi = require('github')
+const config = require('../config');
 
-var github = new GitHubApi({
-  timeout: 5000,
-  host: host,
-  pathPrefix: '/api/v3',
-  protocol: 'https',
+router.get('/', (req, res, next) => {
+  res.render('index');
 });
 
-github.authenticate({
-  type: 'oauth',
-  token: process.env.GHE_TOKEN
-});
-
-
-/** GET / */
-exports.index = function(req, resp, next) {
+router.get('/:courseId', (req, resp, next) => {
   // Find NetID
-  var netid = req.get('eppn');
+  let netid;
+  if (process.env.NODE_ENV === 'development') {
+    // No shib locally
+    // Default to "dev", override with NETID environment variable
+    netid = process.env.NETID || 'dev';
+  } else {
+    netid = req.get('eppn');
+  }
   if (!netid || netid.length < 1) {
     throw {
       text: 'We were unable to authenticate your NetID.  Please try again later.',
@@ -30,12 +24,42 @@ exports.index = function(req, resp, next) {
     };
   }
 
+  // Lookup course info in config
+  const { courseId } = req.params;
+  const course = config.courses.find(c => c.id === courseId);
+  if (!course) {
+    throw {
+      text: 'Unknown course ID!',
+      call: "course config"
+    }
+  }
+
+  // Let's check for a token for that course
+  const tokenEnvVar = `GITHUB_TOKEN_${course.id.toUpperCase()}`
+  const githubToken = process.env[tokenEnvVar]
+  if (!githubToken) {
+    throw {
+      text: 'No course token found',
+      call: 'course token'
+    }
+  }
+
   netid = netid.split("@")[0];
   console.log("NetID: " + netid);
-  var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
+  const studentRepoURL = `${config.host}/${course.org}/${netid}`;
+
+  // Set up a new Octokit instance for this request
+  const octokit = new Octokit({
+    timeout: 5000,
+    baseUrl: `${config.host}/api/v3`,
+  });
+  octokit.authenticate({
+    type: 'token',
+    token: githubToken,
+  });
 
   // 1. Ensure/check if the user exists in GitHub
-  github.users.getForUser({
+  octokit.users.getForUser({
     username: netid
   }, function (err, res) {
     if (err) {
@@ -54,13 +78,13 @@ exports.index = function(req, resp, next) {
     }
 
     // 2. Create the user
-    github.repos.createForOrg({
-      org: org,
+    octokit.repos.createForOrg({
+      org: course.org,
       name: netid,
       private: true,
       has_issues: false,
       has_wiki: false,
-      description: courseTerm + " repository for " + netid,
+      description: `${config.semester} repository for ${netid}`,
     }, function (err, res) {
 
       if (err) {
@@ -79,13 +103,12 @@ exports.index = function(req, resp, next) {
       }
 
       // 3. Give the user access
-      github.repos.addCollaborator({
-        owner: org,
+      octokit.repos.addCollaborator({
+        owner: course.org,
         repo: netid,
         username: netid,
         permission: "push"
       }, function (err, res) {
-        console.log();
         if (err) {
           // Response: Unknown error and log it
           next({
@@ -100,4 +123,6 @@ exports.index = function(req, resp, next) {
       });          
     });          
   });
-};
+});
+
+module.exports = router;
