@@ -1,0 +1,74 @@
+html, body {
+  margin: 0px;
+  background: white;
+  height: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+body {
+  display: flex;
+}
+
+.container-wrapper {
+  width: 100%;
+  max-width: 500px;
+  margin: auto;
+  height: auto;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+}
+
+.panel {
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 12px 0px rgba(0,0,0,.25);
+  border-radius: 5px;
+  height: auto;
+  margin: 20px;
+}
+
+.panel > *:first-child {
+  margin-top: 0;
+}
+
+.panel > *:last-child {
+  margin-bottom: 0;
+}
+
+.btn {
+  padding: 8px 16px;
+  text-decoration: none;
+  display: flex;
+  text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-outline {
+  color: black;
+  background-color: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0, 0, 0, 0.23);
+}
+
+.btn-outline:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline:active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.btn-github {
+  color: #fff;
+  background-color: #24292e;
+  box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 3px 1px -2px rgba(0, 0, 0, 0.12);
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}

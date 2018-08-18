@@ -8,6 +8,11 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/:courseId', (req, resp, next) => {
+  // We'll accumulate data in this object as we go to make rendering easy
+  const data = {
+    githubHost: config.host,
+  };
+
   // Find NetID
   let netid;
   if (process.env.NODE_ENV === 'development') {
@@ -15,14 +20,16 @@ router.get('/:courseId', (req, resp, next) => {
     // Default to "dev", override with NETID environment variable
     netid = process.env.NETID || 'dev';
   } else {
-    netid = req.get('eppn');
+    const email = req.get('eppn');
+    if (!email || email.length === 0) {
+      throw {
+        text: 'We were unable to authenticate your NetID.  Please try again later.',
+        call: "shib"
+      };
+    }
+    netid = email.split('@')[0];
   }
-  if (!netid || netid.length < 1) {
-    throw {
-      text: 'We were unable to authenticate your NetID.  Please try again later.',
-      call: "shib"
-    };
-  }
+  data.netid = netid;
 
   // Lookup course info in config
   const { courseId } = req.params;
@@ -33,6 +40,8 @@ router.get('/:courseId', (req, resp, next) => {
       call: "course config"
     }
   }
+  data.courseName = course.name;
+  data.courseId = course.id;
 
   // Let's check for a token for that course
   const tokenEnvVar = `GITHUB_TOKEN_${course.id.toUpperCase()}`
@@ -44,9 +53,7 @@ router.get('/:courseId', (req, resp, next) => {
     }
   }
 
-  netid = netid.split("@")[0];
-  console.log("NetID: " + netid);
-  const studentRepoURL = `${config.host}/${course.org}/${netid}`;
+  data.studentRepoUrl = `${config.host}/${course.org}/${netid}`;
 
   // Set up a new Octokit instance for this request
   const octokit = new Octokit({
@@ -63,9 +70,9 @@ router.get('/:courseId', (req, resp, next) => {
     username: netid
   }, function (err, res) {
     if (err) {
-      if (err.message == "Not Found") {
+      if (err.code === 404) {
         // Response: User does not exist on GitHub -- have them log in
-        resp.render('loginToGHE', {});
+        resp.render('loginToGHE', data);
       } else {
         // Response: Unknown error and log it
         next({
@@ -77,7 +84,7 @@ router.get('/:courseId', (req, resp, next) => {
       return;
     }
 
-    // 2. Create the user
+    // 2. Create the repository
     octokit.repos.createForOrg({
       org: course.org,
       name: netid,
@@ -90,7 +97,7 @@ router.get('/:courseId', (req, resp, next) => {
       if (err) {
         if (err.code == 422) {
           // Response: Repo already exists
-          resp.render('repoExists', {url: studentRepoURL});
+          resp.render('repoReady', data);
         } else {
           // Response: Unknown error and log it
           next({
@@ -118,7 +125,7 @@ router.get('/:courseId', (req, resp, next) => {
           });
         } else {
           // Response: Success
-          resp.render('repoCreated', {url: studentRepoURL});
+          resp.render('repoReady', data);
         }
       });          
     });          
