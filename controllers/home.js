@@ -4,16 +4,19 @@ const Octokit = require('@octokit/rest');
 const config = require('../config');
 const baseUrl = process.env.BASE_URL || '';
 
+// Data that should be used when rendering any response
+const DATA = {
+    githubHost: config.host,
+    baseUrl,
+}
+
 router.get('/', (req, res, next) => {
-  res.render('index');
+  res.render('index', DATA);
 });
 
 router.get('/:courseId', (req, resp, next) => {
   // We'll accumulate data in this object as we go to make rendering easy
-  const data = {
-    githubHost: config.host,
-    baseUrl,
-  };
+  const data = { ...DATA };
 
   // Find NetID
   let netid;
