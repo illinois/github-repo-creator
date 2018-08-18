@@ -1,11 +1,12 @@
 {
-  "name": "ghe-makeRepo",
+  "name": "github-repo-creator",
+  "private": true,
   "version": "1.0.0",
   "description": "Web tool for student self-service creation of a repo on GHE",
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "dev:watch": "NODE_ENV=development nodemon server.js",
-    "start": "node server.js"
+    "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "@octokit/rest": "^15.9.6",

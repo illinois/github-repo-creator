@@ -1,0 +1,11 @@
+# Blacklist everything
+*
+
+# Whitelist only the things we want
+!package.json
+!package-lock.json
+!controllers/
+!public/
+!views/
+!config.js
+!server.js
