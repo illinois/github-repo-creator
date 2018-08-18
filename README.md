@@ -20,3 +20,7 @@ The service will load any environment variables from the `.env` file when it's s
 ## Adding courses
 
 Configuration is done with the `config.js` file in the root of the repository. To add a new course, simply add another entry to the `courses` array. You will need to provide a GitHub token in order for the service to make GitHub API calls on your behalf. To ensure tokens aren't accidentally stored in this repo, they're provided via environment variables. A course's token environment variable is based on the course's ID. For example, if my course ID is `cs225`, its token would be provided via the `GITHUB_TOKEN_CS225` environment variable.
+
+## Other configuration
+
+This service might not be mounted at the root path of the server. If that's the case, you can set the `BASE_URL` environment variable. For example, if this service was being served from `/github`, you could use `BASE_URL=/github`.

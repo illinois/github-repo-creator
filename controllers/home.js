@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Octokit = require('@octokit/rest');
 
 const config = require('../config');
+const baseUrl = process.env.BASE_URL || '';
 
 router.get('/', (req, res, next) => {
   res.render('index');
@@ -11,6 +12,7 @@ router.get('/:courseId', (req, resp, next) => {
   // We'll accumulate data in this object as we go to make rendering easy
   const data = {
     githubHost: config.host,
+    baseUrl,
   };
 
   // Find NetID
