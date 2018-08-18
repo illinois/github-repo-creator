@@ -3,7 +3,6 @@ var path = require('path');
 var logger = require('morgan');
 var compression = require('compression');
 var bodyParser = require('body-parser');
-var expressValidator = require('express-validator');
 var dotenv = require('dotenv');
 var exphbs = require('express-handlebars');
 var rewrite = require('express-urlrewrite')
@@ -29,7 +28,6 @@ app.use(compression());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressValidator());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
