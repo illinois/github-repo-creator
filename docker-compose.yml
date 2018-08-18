@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  github:
+    image: illinois/github-repo-creator
+    restart: always
+    ports:
+      - '${PORT:-3000}:3000'
+    env_file: .env
