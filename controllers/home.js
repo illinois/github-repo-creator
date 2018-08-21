@@ -24,7 +24,6 @@ router.get('/:courseId', (req, resp, next) => {
     // No shib locally
     // Default to "dev", override with NETID environment variable
     netid = process.env.NETID || 'dev';
-    console.log(`Working for netid ${netid}`);
   } else {
     const email = req.get('eppn');
     if (!email || email.length === 0) {
