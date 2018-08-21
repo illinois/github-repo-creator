@@ -56,7 +56,6 @@ router.get('/:courseId', (req, resp, next) => {
       call: 'course token'
     }
   }
-  githubToken = githubToken.toUpperCase();
 
   data.studentRepoUrl = `${config.host}/${course.org}/${netid}`;
 
