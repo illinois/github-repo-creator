@@ -24,6 +24,7 @@ router.get('/:courseId', (req, resp, next) => {
     // No shib locally
     // Default to "dev", override with NETID environment variable
     netid = process.env.NETID || 'dev';
+    console.log(`Working for netid ${netid}`);
   } else {
     const email = req.get('eppn');
     if (!email || email.length === 0) {
@@ -48,15 +49,14 @@ router.get('/:courseId', (req, resp, next) => {
   data.courseName = course.name;
   data.courseId = course.id;
 
-  // Let's check for a token for that course
-  const tokenEnvVar = `GITHUB_TOKEN_${course.id.toUpperCase()}`
-  const githubToken = process.env[tokenEnvVar]
+  var githubToken = course.token;
   if (!githubToken) {
     throw {
       text: 'No course token found',
       call: 'course token'
     }
   }
+  githubToken = githubToken.toUpperCase();
 
   data.studentRepoUrl = `${config.host}/${course.org}/${netid}`;
 
@@ -132,8 +132,8 @@ router.get('/:courseId', (req, resp, next) => {
           // Response: Success
           resp.render('repoReady', data);
         }
-      });          
-    });          
+      });
+    });
   });
 });
 
