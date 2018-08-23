@@ -1,22 +1,18 @@
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var compression = require('compression');
-var bodyParser = require('body-parser');
-var dotenv = require('dotenv');
-var exphbs = require('express-handlebars');
-var rewrite = require('express-urlrewrite')
-
-// Load course config
-var config = require('./config');
-config.loadConfig('./config.hjson');
+const express = require('express');
+const path = require('path');
+const logger = require('morgan');
+const compression = require('compression');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const exphbs = require('express-handlebars');
+const rewrite = require('express-urlrewrite')
 
 // Load environment variables from .env file
 dotenv.load();
 
-var app = express();
+const app = express();
 
-var hbs = exphbs.create({ defaultLayout: 'main' });
+const hbs = exphbs.create({ defaultLayout: 'main' });
 
 // It's possible that this app isn't being served from the root route
 // If that's the case, rewrite URLs to simplify internal route handling
@@ -37,12 +33,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', require('./controllers/home'));
 
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   console.error(err);
   res.render('error', err);
 });
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
   console.log('Express server listening on port ' + app.get('port'));
 });
 

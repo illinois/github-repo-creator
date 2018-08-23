@@ -2,26 +2,23 @@ const Hjson = require('hjson');
 const fs = require('fs');
 const _ = require('lodash');
 
-var config = module.exports;
+const REQUIRED_KEYS = ['id', 'shortname', 'name', 'token', 'org'];
 
-config.loadConfig = function(file) {
-    fs.readFile(file, 'utf8', function(err, data) {
-        if (err) throw err;
-        var fileConfig = Hjson.parse(data);
-        _.assign(config, fileConfig);
-        config.validateConfig();
+// The first time this module is loaded, we'll load the config
+// The path to a config file can be set with the CONFIG_PATH environment
+// variable; if that's not set, it defaults to looking for ./config.hjson
+
+const configPath = process.env.CONFIG_PATH || './config.hjson';
+const configData = fs.readFileSync(configPath, 'utf8');
+const config = Hjson.parse(configData);
+
+// Simple validation of the config
+_.each(config.courses, (course) => {
+    _.each(REQUIRED_KEYS, (key) => {
+        if (!course[key]) {
+            throw Error(`course missing ${key}`);
+        }
     });
-};
+});
 
-config.validateConfig = function() {
-
-    var req_items = ['id', 'shortname', 'name', 'token', 'org'];
-    _.each(config.courses, function(course) {
-
-        _.each(req_items, function(item) {
-            if (!course[item]) {
-                throw Error(`course missing ${item}`);
-            }
-        });
-    });
-};
+module.exports = config;

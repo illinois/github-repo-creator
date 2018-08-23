@@ -5,4 +5,11 @@ services:
     restart: always
     ports:
       - '${PORT:-3000}:3000'
+    environment:
+      CONFIG_PATH: /config.hjson
     env_file: .env
+    volumes:
+      - ./config.hjson:/config.hjson
+configs:
+  config:
+    file: ./config.hjson

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "dev:watch": "NODE_ENV=development nodemon server.js",
-    "start": "NODE_ENV=production node server.js"
+    "start": "NODE_ENV=production node server.js",
+    "start:docker": "node server.js",
+    "build:docker": "docker build . -t illinois/github-repo-creator:latest"
   },
   "dependencies": {
     "@octokit/rest": "^15.9.6",

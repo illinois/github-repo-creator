@@ -8,7 +8,7 @@ const baseUrl = process.env.BASE_URL || '';
 const DATA = {
     githubHost: config.host,
     baseUrl,
-}
+};
 
 router.get('/', (req, res, next) => {
   res.render('index', DATA);
@@ -48,7 +48,7 @@ router.get('/:courseId', (req, resp, next) => {
   data.courseName = course.name;
   data.courseId = course.id;
 
-  var githubToken = course.token;
+  const githubToken = course.token;
   if (!githubToken) {
     throw {
       text: 'No course token found',
