@@ -1,47 +1,81 @@
-/** Course setup */
-var host = "github-dev.cs.illinois.edu";
-var org = process.env.GH_ORG;
-var courseTerm = process.env.COURSE_TERM;
+const router = require('express').Router();
+const Octokit = require('@octokit/rest');
 
-/** GHE API setup */
-var GitHubApi = require('github')
+const config = require('../config');
+const baseUrl = process.env.BASE_URL || '';
 
-var github = new GitHubApi({
-  timeout: 5000,
-  host: host,
-  pathPrefix: '/api/v3',
-  protocol: 'https',
+// Data that should be used when rendering any response
+const DATA = {
+    githubHost: config.host,
+    baseUrl,
+};
+
+router.get('/', (req, res, next) => {
+  res.render('index', DATA);
 });
 
-github.authenticate({
-  type: 'oauth',
-  token: process.env.GHE_TOKEN
-});
+router.get('/:courseId', (req, resp, next) => {
+  // We'll accumulate data in this object as we go to make rendering easy
+  const data = { ...DATA };
 
-
-/** GET / */
-exports.index = function(req, resp, next) {
   // Find NetID
-  var netid = req.get('eppn');
-  if (!netid || netid.length < 1) {
+  let netid;
+  if (process.env.NODE_ENV === 'development') {
+    // No shib locally
+    // Default to "dev", override with NETID environment variable
+    netid = process.env.NETID || 'dev';
+  } else {
+    const email = req.get('eppn');
+    if (!email || email.length === 0) {
+      throw {
+        text: 'We were unable to authenticate your NetID.  Please try again later.',
+        call: "shib"
+      };
+    }
+    netid = email.split('@')[0];
+  }
+  data.netid = netid;
+
+  // Lookup course info in config
+  const { courseId } = req.params;
+  const course = config.courses.find(c => c.id === courseId);
+  if (!course) {
     throw {
-      text: 'We were unable to authenticate your NetID.  Please try again later.',
-      call: "shib"
-    };
+      text: 'Unknown course ID!',
+      call: "course config"
+    }
+  }
+  data.courseName = course.name;
+  data.courseId = course.id;
+
+  const githubToken = course.token;
+  if (!githubToken) {
+    throw {
+      text: 'No course token found',
+      call: 'course token'
+    }
   }
 
-  netid = netid.split("@")[0];
-  console.log("NetID: " + netid);
-  var studentRepoURL = "https://" + host + "/" + org + "/" + netid;
+  data.studentRepoUrl = `${config.host}/${course.org}/${netid}`;
+
+  // Set up a new Octokit instance for this request
+  const octokit = new Octokit({
+    timeout: 5000,
+    baseUrl: `${config.host}/api/v3`,
+  });
+  octokit.authenticate({
+    type: 'token',
+    token: githubToken,
+  });
 
   // 1. Ensure/check if the user exists in GitHub
-  github.users.getForUser({
+  octokit.users.getForUser({
     username: netid
   }, function (err, res) {
     if (err) {
-      if (err.message == "Not Found") {
+      if (err.code === 404) {
         // Response: User does not exist on GitHub -- have them log in
-        resp.render('loginToGHE', {});
+        resp.render('loginToGHE', data);
       } else {
         // Response: Unknown error and log it
         next({
@@ -53,20 +87,20 @@ exports.index = function(req, resp, next) {
       return;
     }
 
-    // 2. Create the user
-    github.repos.createForOrg({
-      org: org,
+    // 2. Create the repository
+    octokit.repos.createForOrg({
+      org: course.org,
       name: netid,
       private: true,
       has_issues: false,
       has_wiki: false,
-      description: courseTerm + " repository for " + netid,
+      description: `${config.semester} repository for ${netid}`,
     }, function (err, res) {
 
       if (err) {
         if (err.code == 422) {
           // Response: Repo already exists
-          resp.render('repoExists', {url: studentRepoURL});
+          resp.render('repoReady', data);
         } else {
           // Response: Unknown error and log it
           next({
@@ -79,13 +113,12 @@ exports.index = function(req, resp, next) {
       }
 
       // 3. Give the user access
-      github.repos.addCollaborator({
-        owner: org,
+      octokit.repos.addCollaborator({
+        owner: course.org,
         repo: netid,
         username: netid,
         permission: "push"
       }, function (err, res) {
-        console.log();
         if (err) {
           // Response: Unknown error and log it
           next({
@@ -95,9 +128,11 @@ exports.index = function(req, resp, next) {
           });
         } else {
           // Response: Success
-          resp.render('repoCreated', {url: studentRepoURL});
+          resp.render('repoReady', data);
         }
-      });          
-    });          
+      });
+    });
   });
-};
+});
+
+module.exports = router;

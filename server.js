@@ -1,38 +1,24 @@
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var compression = require('compression');
-var methodOverride = require('method-override');
-var session = require('express-session');
-var flash = require('express-flash');
-var bodyParser = require('body-parser');
-var expressValidator = require('express-validator');
-var dotenv = require('dotenv');
-var exphbs = require('express-handlebars');
+const express = require('express');
+const path = require('path');
+const logger = require('morgan');
+const compression = require('compression');
+const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
+const exphbs = require('express-handlebars');
+const rewrite = require('express-urlrewrite')
 
 // Load environment variables from .env file
 dotenv.load();
 
-// Controllers
-var HomeController = require('./controllers/home');
+const app = express();
 
-var app = express();
+const hbs = exphbs.create({ defaultLayout: 'main' });
 
-
-var hbs = exphbs.create({
-  defaultLayout: 'main',
-  helpers: {
-    ifeq: function(a, b, options) {
-      if (a === b) {
-        return options.fn(this);
-      }
-      return options.inverse(this);
-    },
-    toJSON : function(object) {
-      return JSON.stringify(object);
-    }
-  }
-});
+// It's possible that this app isn't being served from the root route
+// If that's the case, rewrite URLs to simplify internal route handling
+if (process.env.BASE_URL) {
+  app.use(rewrite(`${process.env.BASE_URL}/*`, '/$1'));
+}
 
 app.set('trust proxy', '127.0.0.1');
 app.engine('handlebars', hbs.engine);
@@ -42,32 +28,17 @@ app.use(compression());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(expressValidator());
-app.use(methodOverride('_method'));
-app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true }));
-app.use(flash());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', HomeController.index);
 
-// Production error handler
-/*
-if (app.get('env') === 'production') {
-  app.use(function(err, req, res, next) {
-    console.error(err.stack);
-    res.sendStatus(err.status || 500);
-  });
-}
-*/
-app.use(function(err, req, res, next) {
-  console.log(JSON.stringify(err));
+app.use('/', require('./controllers/home'));
+
+app.use((err, req, res, next) => {
+  console.error(err);
   res.render('error', err);
-  //console.error(err.stack);
-  //res.sendStatus(err.status || 500);
 });
 
-
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
   console.log('Express server listening on port ' + app.get('port'));
 });
 

@@ -1,0 +1,13 @@
+{
+  semester: Fall 2018
+  host: https://github-dev.cs.illinois.edu
+  courses: [
+    {
+      id: test
+      shortname: Test
+      name: Test Repo Creation
+      org: github-provisioner-test
+      token: YOUR_TOKEN_HERE
+    }
+  ]
+}
