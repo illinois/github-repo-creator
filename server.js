@@ -7,6 +7,10 @@ var dotenv = require('dotenv');
 var exphbs = require('express-handlebars');
 var rewrite = require('express-urlrewrite')
 
+// Load course config
+var config = require('./config');
+config.loadConfig('./config.hjson');
+
 // Load environment variables from .env file
 dotenv.load();
 

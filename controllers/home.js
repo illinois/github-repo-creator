@@ -48,9 +48,7 @@ router.get('/:courseId', (req, resp, next) => {
   data.courseName = course.name;
   data.courseId = course.id;
 
-  // Let's check for a token for that course
-  const tokenEnvVar = `GITHUB_TOKEN_${course.id.toUpperCase()}`
-  const githubToken = process.env[tokenEnvVar]
+  var githubToken = course.token;
   if (!githubToken) {
     throw {
       text: 'No course token found',
@@ -132,8 +130,8 @@ router.get('/:courseId', (req, resp, next) => {
           // Response: Success
           resp.render('repoReady', data);
         }
-      });          
-    });          
+      });
+    });
   });
 });
 

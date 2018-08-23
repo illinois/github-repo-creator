@@ -19,7 +19,21 @@ The service will load any environment variables from the `.env` file when it's s
 
 ## Adding courses
 
-Configuration is done with the `config.js` file in the root of the repository. To add a new course, simply add another entry to the `courses` array. You will need to provide a GitHub token in order for the service to make GitHub API calls on your behalf. To ensure tokens aren't accidentally stored in this repo, they're provided via environment variables. A course's token environment variable is based on the course's ID. For example, if my course ID is `cs225`, its token would be provided via the `GITHUB_TOKEN_CS225` environment variable.
+Configuration is done with the `config.hjson` file in the root of the repository. [Hjson](https://hjson.org) is an extension to JSON to
+make it user-friendlier (supports comments, which makes it more flexible for config files). It parses back into JSON
+for operation.
+
+To add a new course, simply add another entry to the `courses` array. A `course` object contains:
+
+`id`: "CS999" // short key for the course, used in the URL path
+`shortname`: "CS 999" // the displayed name for the course
+`name`: "The Study of Computation 9s" // descriptive name of the course
+`org`: "cs999-2018spring"
+`token`: The GitHub API token call to use to create the repository.
+
+Other global configs:
+`host`: "https://github-enterprise.host.com" // where to send the API calls
+`semester`: "Spring 2018" // displayed info about which semester
 
 ## Other configuration
 
